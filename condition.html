@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — The Condition</title>
+  <link rel="stylesheet" href="css/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <main id="narrative" aria-label="The Condition — narrative sequence">
+
+    <div class="beat beat--body" data-beat="0.08">
+      You are close.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.20">
+      A final directive appears.
+    </div>
+
+    <div class="beat beat--directive"
+         data-beat="0.34" data-approach="0.10" data-recede="0.10">
+      DO NOT INTERRUPT SIGNAL FLOW<br>
+      DO NOT LOOK BACK
+    </div>
+
+    <div class="beat beat--body" data-beat="0.50">
+      This is not retrieval.
+    </div>
+
+    <div class="beat beat--emphasis"
+         data-beat="0.60" data-approach="0.09" data-recede="0.09">
+      This is reconstruction.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.72">
+      She will return as signal.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.83">
+      Only if you carry it forward.
+    </div>
+
+    <div class="beat beat--choice"
+         data-beat="0.97" data-approach="0.04" data-recede="0.99">
+      <a class="choice-btn" href="portal.html">&rarr;&nbsp;Enter the portal</a>
+    </div>
+
+  </main>
+
+  <div id="progress-bar" aria-hidden="true"></div>
+  <p id="scroll-hint" aria-hidden="true">scroll to descend</p>
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening"></a>
+    <a href="glitch_tunnel.html" title="The Fracture"></a>
+    <a href="echo_basin.html" title="The Echo"></a>
+    <a href="vault.html" title="The Vault"></a>
+    <a href="condition.html" title="The Condition" class="active"></a>
+    <a href="portal.html" title="The Portal"></a>
+  </nav>
+
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>The Condition</h2>
+    <p>You are close. A final directive appears. DO NOT INTERRUPT SIGNAL FLOW.
+    DO NOT LOOK BACK. This is not retrieval. This is reconstruction. She will
+    return as signal. Only if you carry it forward.</p>
+    <a href="portal.html">Enter the portal</a>
+  </div>
+
+  <script type="module" src="js/scenes/condition.js"></script>
+</body>
+</html>

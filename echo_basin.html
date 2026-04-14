@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — The Echo</title>
+  <link rel="stylesheet" href="css/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    #mic-btn {
+      position: fixed;
+      bottom: 4rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: var(--z-ui);
+      padding: 0.6rem 1.4rem;
+      border: 1px solid var(--fragment);
+      background: transparent;
+      color: var(--fragment);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #mic-btn:hover { background: rgba(255,0,200,0.08); }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <main id="narrative" aria-label="The Echo — narrative sequence">
+
+    <div class="beat beat--body" data-beat="0.05">
+      You follow the resonance.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.16">
+      The system listens.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.27">
+      You move.<br>The world responds.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.37">
+      Light ripples outward.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.46">
+      Images surface.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.55">
+      You remember creating together.<br>Signal moving between you faster than thought.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.64">
+      You make a sound.
+    </div>
+
+    <div class="beat beat--emphasis"
+         data-beat="0.71" data-approach="0.08" data-recede="0.08">
+      The Archive answers.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.78" data-approach="0.08" data-recede="0.10">
+      SIGNAL FRAGMENT: ACQUIRED
+    </div>
+
+    <div class="beat beat--body" data-beat="0.86">
+      She is still here.
+    </div>
+
+    <div class="beat beat--eurydice"
+         data-beat="0.92" data-approach="0.06" data-recede="0.06">
+      Deeper.<br>Waiting.
+    </div>
+
+    <div class="beat beat--choice"
+         data-beat="0.97" data-approach="0.04" data-recede="0.99">
+      <a class="choice-btn" href="vault.html">&rarr;&nbsp;Continue descent</a>
+    </div>
+
+  </main>
+
+  <div id="progress-bar" aria-hidden="true"></div>
+  <p id="scroll-hint" aria-hidden="true">scroll to descend</p>
+  <button id="mic-btn" aria-label="Enable microphone for audio-reactive visuals">
+    enable microphone
+  </button>
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening"></a>
+    <a href="glitch_tunnel.html" title="The Fracture"></a>
+    <a href="echo_basin.html" title="The Echo" class="active"></a>
+    <a href="vault.html" title="The Vault"></a>
+    <a href="condition.html" title="The Condition"></a>
+    <a href="portal.html" title="The Portal"></a>
+  </nav>
+
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>The Echo</h2>
+    <p>You follow the resonance. The system listens. You move. The world responds.
+    Light ripples outward. Images surface. You remember creating together.
+    Signal moving between you faster than thought. You make a sound. The Archive answers.</p>
+    <p>SIGNAL FRAGMENT: ACQUIRED</p>
+    <p>She is still here. Deeper. Waiting.</p>
+    <a href="vault.html">Continue descent</a>
+  </div>
+
+  <script type="module" src="js/scenes/echo.js"></script>
+</body>
+</html>

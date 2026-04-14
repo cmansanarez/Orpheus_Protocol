@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — The Portal</title>
+  <link rel="stylesheet" href="css/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- Hydra synth: loaded ONLY on the portal page -->
+  <script src="https://unpkg.com/hydra-synth"></script>
+  <style>
+    /* Portal-specific overrides */
+    body { cursor: none; }      /* pointer lock = custom crosshair */
+
+    #portal-ui {
+      position: fixed;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: var(--z-ui);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      pointer-events: none;
+    }
+
+    #mic-btn {
+      pointer-events: all;
+      padding: 0.6rem 1.4rem;
+      border: 1px solid var(--fragment);
+      background: transparent;
+      color: var(--fragment);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #mic-btn:hover { background: rgba(255,0,200,0.08); }
+
+    #click-hint {
+      color: var(--dim);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Minimal residual text — the visuals take over here -->
+  <div id="narrative" aria-label="The Portal — end state" aria-live="polite">
+
+    <div class="beat beat--body"
+         data-beat="0.08" data-approach="0.06" data-recede="0.06">
+      You enter the chamber.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.18">
+      Darkness.<br>Silence.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.28" data-approach="0.08" data-recede="0.08">
+      VISUAL ENGINE: READY<br>INPUT REQUIRED
+    </div>
+
+    <div class="beat beat--body" data-beat="0.40">
+      Nothing happens.<br>Until you act.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.52">
+      A sound.<br>A breath.
+    </div>
+
+    <div class="beat beat--emphasis"
+         data-beat="0.62" data-approach="0.09" data-recede="0.08">
+      The system responds.
+    </div>
+
+    <!-- After this beat the Hydra visuals fully take over -->
+    <div class="beat beat--eurydice"
+         data-beat="0.78" data-approach="0.10" data-recede="0.12">
+      She is here.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.87">
+      Not as memory.<br>As signal.<br>As light.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.97" data-approach="0.06" data-recede="0.99">
+      THE ARCHIVE BEGINS AGAIN.
+    </div>
+
+  </div>
+
+  <div id="progress-bar" aria-hidden="true"></div>
+
+  <!-- Portal-specific UI -->
+  <div id="portal-ui">
+    <button id="mic-btn" aria-label="Enable microphone to activate visuals">
+      enable microphone
+    </button>
+    <span id="click-hint">click to look around &nbsp;&bull;&nbsp; WASD to move</span>
+  </div>
+
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening"></a>
+    <a href="glitch_tunnel.html" title="The Fracture"></a>
+    <a href="echo_basin.html" title="The Echo"></a>
+    <a href="vault.html" title="The Vault"></a>
+    <a href="condition.html" title="The Condition"></a>
+    <a href="portal.html" title="The Portal" class="active"></a>
+  </nav>
+
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>The Portal</h2>
+    <p>You enter the chamber. Darkness. Silence. VISUAL ENGINE: READY. INPUT REQUIRED.
+    Nothing happens until you act. A sound. A breath. The system responds. She is here.
+    Not as memory. As signal. As light. The Archive begins again.</p>
+  </div>
+
+  <script type="module" src="js/scenes/portal.js"></script>
+</body>
+</html>

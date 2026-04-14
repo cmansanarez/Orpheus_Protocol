@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — The Fracture</title>
+  <link rel="stylesheet" href="css/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <main id="narrative" aria-label="The Fracture — narrative sequence">
+
+    <div class="beat beat--body" data-beat="0.05">
+      You step into the fracture.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.16">
+      The world splits.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.27">
+      Your form duplicates.<br>Offset in colour and time.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.38">
+      You think you are breaking.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.49">
+      Then you understand.
+    </div>
+
+    <div class="beat beat--emphasis"
+         data-beat="0.57" data-approach="0.09" data-recede="0.08">
+      You are changing.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.65">
+      The Archive is rewriting you.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.74" data-approach="0.08" data-recede="0.10">
+      SIGNAL FRAGMENT: ACQUIRED
+    </div>
+
+    <div class="beat beat--body" data-beat="0.83">
+      For a moment, you see her.
+    </div>
+
+    <div class="beat beat--eurydice"
+         data-beat="0.89" data-approach="0.06" data-recede="0.06">
+      Reaching.<br>Glitching.<br>Gone.
+    </div>
+
+    <div class="beat beat--choice"
+         data-beat="0.97" data-approach="0.04" data-recede="0.99">
+      <a class="choice-btn" href="vault.html">&rarr;&nbsp;Continue descent</a>
+    </div>
+
+  </main>
+
+  <div id="progress-bar" aria-hidden="true"></div>
+  <p id="scroll-hint" aria-hidden="true">scroll to descend</p>
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening"></a>
+    <a href="glitch_tunnel.html" title="The Fracture" class="active"></a>
+    <a href="echo_basin.html" title="The Echo"></a>
+    <a href="vault.html" title="The Vault"></a>
+    <a href="condition.html" title="The Condition"></a>
+    <a href="portal.html" title="The Portal"></a>
+  </nav>
+
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>The Fracture</h2>
+    <p>You step into the fracture. The world splits. Your form duplicates, offset
+    in colour and time. You think you are breaking. Then you understand. You are
+    changing. The Archive is rewriting you.</p>
+    <p>SIGNAL FRAGMENT: ACQUIRED</p>
+    <p>For a moment, you see her. Reaching. Glitching. Gone.</p>
+    <a href="vault.html">Continue descent</a>
+  </div>
+
+  <script type="module" src="js/scenes/fracture.js"></script>
+</body>
+</html>

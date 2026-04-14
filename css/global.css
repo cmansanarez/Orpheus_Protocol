@@ -1,0 +1,304 @@
+/* ============================================================
+   GLITCH.EXE: ORPHEUS PROTOCOL — Global Design System
+   ============================================================
+   Layer stack:
+     0  bg-canvas      WebGL / Three.js scene
+     1  particles      auxiliary p5.js canvas (optional per page)
+    10  narrative      HTML text overlays (the story)
+    20  ui             progress bar, scroll hint, page nav
+    30  overlay        modal / transition covers
+   ============================================================ */
+
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --void:      #000000;
+  --deep:      #03030a;
+  --signal:    #00ffe1;   /* cyan  — primary accent / Orpheus */
+  --fragment:  #ff00c8;   /* magenta — Eurydice */
+  --noise:     #3d00ff;   /* electric blue — corruption / Fracture */
+  --text:      #e2e2f0;   /* near-white — body narrative */
+  --dim:       #4a4a6a;   /* muted — secondary / hint */
+  --warn:      #ffcc00;   /* amber — system directives */
+
+  /* Typography */
+  --font-mono:  'Courier New', Courier, monospace;
+  --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* Z-layers */
+  --z-canvas:    0;
+  --z-aux:       1;
+  --z-narrative: 10;
+  --z-ui:        20;
+  --z-overlay:   30;
+
+  /* Motion */
+  --ease-descent: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;          /* wheel events drive scroll, not native */
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  cursor: crosshair;
+}
+
+/* ── Layer 0 — WebGL Canvas ────────────────────────────────── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: var(--z-canvas);
+  display: block;
+}
+
+/* ── Layer 1 — Auxiliary p5 Canvas (optional) ──────────────── */
+#aux-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: var(--z-aux);
+  pointer-events: none;
+}
+
+/* ── Layer 10 — Narrative Overlay ──────────────────────────── */
+#narrative {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-narrative);
+  pointer-events: none;      /* beats control their own pointer-events */
+}
+
+/* ── Story Beat ─────────────────────────────────────────────── */
+/*
+   All beats share this base. ScrollNarrative.js drives
+   transform + opacity via style. Use data-beat="0.0–1.0"
+   on elements; JavaScript auto-discovers them.
+*/
+.beat {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+  text-align: center;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  max-width: min(680px, 90vw);
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  /* Soft dark vignette — visible only when bloom brightens the canvas
+     behind text. Provides a consistent dark field for all beat types. */
+  background: radial-gradient(
+    ellipse 120% 160% at 50% 50%,
+    rgba(0, 2, 12, 0.38) 0%,
+    transparent 72%
+  );
+}
+
+/* Title / Logo */
+.beat--title {
+  font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal);
+  text-shadow:
+    0 0  4px rgba(0, 2, 12, 0.95),   /* dark halo — closest to text */
+    0 0 16px var(--signal),
+    0 0 48px rgba(0, 255, 225, 0.4);
+  line-height: 1.3;
+}
+
+/* Standard narrative body */
+.beat--body {
+  font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+  line-height: 1.9;
+  color: var(--text);
+  text-shadow:
+    0 0  4px rgba(0, 2, 12, 1.00),   /* tight dark backing */
+    0 0 16px rgba(0, 2, 12, 0.92),   /* mid dark backing */
+    0 0 34px rgba(0, 2, 12, 0.78),   /* wide dark backing */
+    0 0 10px rgba(226, 226, 240, 0.18); /* kept: very soft light halo */
+}
+
+/* System / log messages */
+.beat--system {
+  font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+  color: var(--signal);
+  text-shadow:
+    0 0  2px rgba(0, 2, 12, 0.90),
+    0 0  8px var(--signal);
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(0, 255, 225, 0.25);
+  padding: 1.2rem 2rem;
+  background: rgba(0, 255, 225, 0.03);
+  line-height: 2;
+  text-align: left;
+}
+
+/* Directives / warnings (Condition page) */
+.beat--directive {
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  color: var(--warn);
+  text-shadow:
+    0 0  4px rgba(0, 2, 12, 0.95),
+    0 0 10px var(--warn);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 2.2;
+}
+
+/* Eurydice name / signal beats */
+.beat--eurydice {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  letter-spacing: 0.35em;
+  color: var(--fragment);
+  text-shadow:
+    0 0  4px rgba(0, 2, 12, 0.95),   /* dark halo */
+    0 0 24px var(--fragment),
+    0 0 72px rgba(255, 0, 200, 0.3);
+}
+
+/* Emphasis — single important line */
+.beat--emphasis {
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  letter-spacing: 0.06em;
+  color: var(--text);
+  text-shadow:
+    0 0  4px rgba(0, 2, 12, 1.00),
+    0 0 18px rgba(0, 2, 12, 0.92),
+    0 0 38px rgba(0, 2, 12, 0.78),
+    0 0 20px rgba(226, 226, 240, 0.42); /* kept: soft light halo */
+  font-style: italic;
+}
+
+/* ── Branch Choice Buttons ──────────────────────────────────── */
+.beat--choice {
+  display: flex;
+  gap: clamp(1rem, 3vw, 2rem);
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: all;   /* choices are interactive */
+}
+
+.choice-btn {
+  display: inline-block;
+  padding: 0.7rem 1.6rem;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background 0.25s var(--ease-descent),
+    box-shadow 0.25s var(--ease-descent),
+    text-shadow 0.25s;
+}
+.choice-btn:hover, .choice-btn:focus-visible {
+  outline: none;
+  background: rgba(226, 226, 240, 0.06);
+  box-shadow: 0 0 20px rgba(226, 226, 240, 0.15);
+}
+
+.choice-btn--fracture {
+  color: var(--noise);
+  border-color: var(--noise);
+}
+.choice-btn--fracture:hover {
+  background: rgba(61, 0, 255, 0.08);
+  box-shadow: 0 0 24px rgba(61, 0, 255, 0.2);
+  text-shadow: 0 0 8px var(--noise);
+}
+
+.choice-btn--echo {
+  color: var(--fragment);
+  border-color: var(--fragment);
+}
+.choice-btn--echo:hover {
+  background: rgba(255, 0, 200, 0.08);
+  box-shadow: 0 0 24px rgba(255, 0, 200, 0.2);
+  text-shadow: 0 0 8px var(--fragment);
+}
+
+/* ── UI Layer ────────────────────────────────────────────────── */
+
+/* Thin top-of-screen progress indicator */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 1px;
+  width: 0%;
+  background: var(--signal);
+  box-shadow: 0 0 4px var(--signal);
+  z-index: var(--z-ui);
+  transition: width 0.08s linear;
+}
+
+/* "scroll to descend" hint */
+#scroll-hint {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-ui);
+  color: var(--dim);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 0.8s;
+}
+#scroll-hint.hidden { opacity: 0; }
+
+/* Side-dot scene navigation */
+#page-nav {
+  position: fixed;
+  top: 50%;
+  right: 1.5rem;
+  transform: translateY(-50%);
+  z-index: var(--z-ui);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+#page-nav a {
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--dim);
+  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+#page-nav a.active {
+  background: var(--signal);
+  transform: scale(1.8);
+  box-shadow: 0 0 6px var(--signal);
+}
+#page-nav a:hover {
+  background: var(--text);
+}
+
+/* ── Screen-reader only ──────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .beat {
+    transform: translate(-50%, -50%) scale(1) !important;
+    transition: opacity 0.4s !important;
+  }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — The Vault</title>
+  <link rel="stylesheet" href="css/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <main id="narrative" aria-label="The Vault — narrative sequence">
+
+    <div class="beat beat--body" data-beat="0.05">
+      The paths converge.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.14">
+      You enter a stable space.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.23">
+      Perfect geometry floats in silence.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.32" data-approach="0.08" data-recede="0.09">
+      ORPHEUS PROTOCOL: ACTIVE
+    </div>
+
+    <div class="beat beat--body" data-beat="0.41">
+      You remember.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.50">
+      You were a creator.<br>She was your counterpart.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.60">
+      Together, you built living visuals.
+    </div>
+
+    <!-- KEY LINE — visually emphasised -->
+    <div class="beat beat--emphasis"
+         data-beat="0.70" data-approach="0.12" data-recede="0.12">
+      The Archive was never a storage system.<br>It was a performance system.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.80" data-approach="0.09" data-recede="0.10">
+      EURYDICE SIGNAL: CONTAINED<br>
+      LOCATION:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PORTAL CHAMBER<br>
+      ACCESS:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRANTED
+    </div>
+
+    <div class="beat beat--choice"
+         data-beat="0.97" data-approach="0.04" data-recede="0.99">
+      <a class="choice-btn" href="condition.html">&rarr;&nbsp;Proceed to portal</a>
+    </div>
+
+  </main>
+
+  <div id="progress-bar" aria-hidden="true"></div>
+  <p id="scroll-hint" aria-hidden="true">scroll to descend</p>
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening"></a>
+    <a href="glitch_tunnel.html" title="The Fracture"></a>
+    <a href="echo_basin.html" title="The Echo"></a>
+    <a href="vault.html" title="The Vault" class="active"></a>
+    <a href="condition.html" title="The Condition"></a>
+    <a href="portal.html" title="The Portal"></a>
+  </nav>
+
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>The Vault</h2>
+    <p>The paths converge. You enter a stable space. Perfect geometry floats in
+    silence. ORPHEUS PROTOCOL: ACTIVE. You remember. You were a creator. She was
+    your counterpart. Together, you built living visuals.</p>
+    <p>The Archive was never a storage system. It was a performance system.</p>
+    <p>EURYDICE SIGNAL: CONTAINED. LOCATION: PORTAL CHAMBER. ACCESS: GRANTED.</p>
+    <a href="condition.html">Proceed to portal</a>
+  </div>
+
+  <script type="module" src="js/scenes/vault.js"></script>
+</body>
+</html>

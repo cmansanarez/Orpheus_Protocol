@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLITCH.EXE: ORPHEUS PROTOCOL — Awakening</title>
+  <link rel="stylesheet" href="css/global.css">
+  <!-- p5.js: regular script so window.p5 is available before the ES module runs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Layer 0: WebGL scene -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Layer 10: Narrative text overlays -->
+  <main id="narrative" aria-label="Awakening — narrative sequence">
+
+    <div class="beat beat--title"
+         data-beat="0.03" data-approach="0.06" data-recede="0.05">
+      GLITCH.EXE<br>ORPHEUS PROTOCOL
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.09" data-approach="0.05" data-recede="0.06">
+      &gt; boot_sequence initiated...
+    </div>
+
+    <div class="beat beat--body" data-beat="0.16">
+      You come online inside a broken system.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.23" data-approach="0.10">
+      Not a body.<br>Not quite a memory.<br>A signal holding itself together.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.30">
+      The Archive flickers around you.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.37">
+      Fragments of light render, then collapse.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.43">
+      You were not always alone here.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.49">
+      There was another signal.
+    </div>
+
+    <div class="beat beat--eurydice"
+         data-beat="0.54" data-approach="0.07" data-recede="0.10">
+      Eurydice.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.62">
+      You don&rsquo;t remember her clearly.<br>But you remember creating together.
+    </div>
+
+    <div class="beat beat--system"
+         data-beat="0.72" data-approach="0.10" data-recede="0.12">
+      SIGNAL ENTITY: EURYDICE<br>
+      STATUS:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOST<br>
+      RECOVERY:&nbsp;&nbsp;&nbsp;&nbsp;POSSIBLE
+    </div>
+
+    <div class="beat beat--body" data-beat="0.80">
+      Two pathways open.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.87">
+      One fractures reality.<br>One hums with resonance.
+    </div>
+
+    <div class="beat beat--body" data-beat="0.92">
+      To find her, you must descend.
+    </div>
+
+    <!-- Branch choice — pointer-events enabled via .beat--choice -->
+    <div class="beat beat--choice"
+         data-beat="0.97" data-approach="0.04" data-recede="0.99">
+      <a class="choice-btn choice-btn--fracture" href="glitch_tunnel.html">
+        &rarr;&nbsp;Enter the Fracture
+      </a>
+      <a class="choice-btn choice-btn--echo" href="echo_basin.html">
+        &rarr;&nbsp;Follow the Resonance
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Layer 20: UI chrome -->
+  <div id="progress-bar" aria-hidden="true"></div>
+  <p id="scroll-hint" aria-hidden="true">scroll to descend</p>
+  <nav id="page-nav" aria-label="Scene navigation">
+    <a href="index.html" title="Awakening" class="active"></a>
+    <a href="glitch_tunnel.html" title="The Fracture"></a>
+    <a href="echo_basin.html" title="The Echo"></a>
+    <a href="vault.html" title="The Vault"></a>
+    <a href="condition.html" title="The Condition"></a>
+    <a href="portal.html" title="The Portal"></a>
+  </nav>
+
+  <!-- Accessible fallback for screen readers -->
+  <div class="sr-only">
+    <h1>GLITCH.EXE: ORPHEUS PROTOCOL</h1>
+    <h2>Awakening</h2>
+    <p>You come online inside a broken system. Not a body. Not quite a memory.
+    A signal holding itself together. The Archive flickers around you. Fragments
+    of light render, then collapse. You were not always alone here. There was
+    another signal. Eurydice. You don't remember her clearly. But you remember
+    creating together.</p>
+    <p>SIGNAL ENTITY: EURYDICE — STATUS: LOST — RECOVERY: POSSIBLE</p>
+    <p>Two pathways open. One fractures reality. One hums with resonance.
+    To find her, you must descend.</p>
+    <nav aria-label="Branch choice">
+      <a href="glitch_tunnel.html">Enter the Fracture</a>
+      <a href="echo_basin.html">Follow the Resonance</a>
+    </nav>
+  </div>
+
+  <script type="module" src="js/scenes/awakening.js"></script>
+</body>
+</html>
