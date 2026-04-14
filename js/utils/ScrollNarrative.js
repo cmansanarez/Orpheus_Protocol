@@ -38,6 +38,7 @@ export class ScrollNarrative {
 
     this._onWheel = this._onWheel.bind(this);
     this._onTouch = this._onTouch.bind(this);
+    this._onKey   = this._onKey.bind(this);
   }
 
   // ── Public API ────────────────────────────────────────────
@@ -83,6 +84,7 @@ export class ScrollNarrative {
     window.addEventListener('wheel',      this._onWheel, { passive: false });
     window.addEventListener('touchstart', this._onTouch, { passive: true });
     window.addEventListener('touchmove',  this._onTouch, { passive: false });
+    window.addEventListener('keydown',    this._onKey);
     this._loop();
     return this;
   }
@@ -92,6 +94,7 @@ export class ScrollNarrative {
     window.removeEventListener('wheel',      this._onWheel);
     window.removeEventListener('touchstart', this._onTouch);
     window.removeEventListener('touchmove',  this._onTouch);
+    window.removeEventListener('keydown',    this._onKey);
     cancelAnimationFrame(this._raf);
   }
 
@@ -184,4 +187,43 @@ export class ScrollNarrative {
     el.style.transform = `translate(-50%, calc(-50% + ${yShift}px)) scale(${scale.toFixed(4)})`;
     el.style.filter    = `brightness(${brightness})`;
   }
+
+  _onKey(e) {
+    if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
+      e.preventDefault();
+      this._jumpToNextBeat();
+      this._flashKey('next');
+    } else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
+      e.preventDefault();
+      this._jumpToPrevBeat();
+      this._flashKey('prev');
+    }
+  }
+
+  // Jump targetProgress to the next beat's peak value
+  _jumpToNextBeat() {
+    const sorted = [...new Set(this.beats.map(b => b.progress))].sort((a, b) => a - b);
+    const next   = sorted.find(p => p > this.targetProgress + 0.005);
+    this.targetProgress = (next !== undefined) ? next : 1.0;
+  }
+
+  // Jump targetProgress to the previous beat's peak value
+  _jumpToPrevBeat() {
+    const sorted = [...new Set(this.beats.map(b => b.progress))].sort((a, b) => b - a);
+    const prev   = sorted.find(p => p < this.targetProgress - 0.005);
+    this.targetProgress = (prev !== undefined) ? prev : 0.0;
+  }
+
+  // Briefly highlight the ↑ or ↓ key in the #key-hint element
+  _flashKey(dir) {
+    const container = document.getElementById('key-hint');
+    if (!container) return;
+    const keys = container.querySelectorAll('.key');
+    const idx  = (dir === 'next') ? 1 : 0;  // [0]=up  [1]=down
+    const el   = keys[idx];
+    if (!el) return;
+    el.classList.add('key--active');
+    setTimeout(() => el.classList.remove('key--active'), 180);
+  }
+
 }

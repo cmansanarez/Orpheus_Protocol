@@ -271,6 +271,43 @@ html, body {
   background: var(--text);
 }
 
+/* ── Arrow key navigation hint ──────────────────────────────── */
+#key-hint {
+  position: fixed;
+  bottom: 1.8rem;
+  right: 1.5rem;
+  z-index: var(--z-ui);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.22rem;
+  pointer-events: none;
+  opacity: 0.45;
+  transition: opacity 0.4s;
+}
+#key-hint:hover { opacity: 0.85; }
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--dim);
+  border-bottom-width: 2px;
+  color: var(--dim);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  border-radius: 3px;
+  transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+.key--active {
+  border-color: var(--signal);
+  color: var(--signal);
+  box-shadow: 0 0 8px var(--signal);
+}
+
 /* ── Screen-reader only ──────────────────────────────────────── */
 .sr-only {
   position: absolute;
