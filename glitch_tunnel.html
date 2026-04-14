@@ -13,6 +13,24 @@
     }
   }
   </script>
+  <style>
+    /* ── Fracture scene overrides ───────────────────────────────────────────
+       Tunnel bloom can push background luminance to near-white.
+       Override body/emphasis/system text to black so they read at any brightness.
+       eurydice (magenta) is intentionally left vivid — deep magenta still
+       reads against a bright tunnel. ────────────────────────────────────── */
+    #narrative .beat--body,
+    #narrative .beat--emphasis {
+      color: #000000;
+      text-shadow: none;
+    }
+    #narrative .beat--system {
+      color: #000000;
+      border-color: rgba(0, 0, 0, 0.35);
+      background: rgba(0, 0, 0, 0.04);
+      text-shadow: none;
+    }
+  </style>
 </head>
 <body>
 
