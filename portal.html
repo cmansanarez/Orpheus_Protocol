@@ -15,10 +15,10 @@
   </script>
   <!-- Hydra synth: loaded ONLY on the portal page -->
   <script src="https://unpkg.com/hydra-synth"></script>
+  <!-- Extra Hydra conditional transforms — required by hydra4.js (ifeven/ifodd) -->
+  <script src="https://metagrowing.org/extra-shaders-for-hydra/lib-cond.js"></script>
   <style>
-    /* Portal-specific overrides */
-    body { cursor: none; }      /* pointer lock = custom crosshair */
-
+    /* Portal-specific overrides: cursor hidden by OS during pointer lock */
     #portal-ui {
       position: fixed;
       bottom: 2rem; left: 50%;
@@ -112,7 +112,7 @@
     <button id="mic-btn" aria-label="Enable microphone to activate visuals">
       enable microphone
     </button>
-    <span id="click-hint">click to look around &nbsp;&bull;&nbsp; WASD to move</span>
+    <span id="click-hint">drag to orbit &nbsp;&bull;&nbsp; scroll to scale</span>
   </div>
 
   <nav id="page-nav" aria-label="Scene navigation">
