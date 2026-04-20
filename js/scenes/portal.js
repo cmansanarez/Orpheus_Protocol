@@ -1,22 +1,23 @@
 /**
  * portal.js — PAGE 5: The Portal  (portal.html)
  * ─────────────────────────────────────────────────────────────────────────────
- * Digital black-box theatre. A 30-unit cube in void space, orbiting like a
- * holy relic. The user moves the camera around the cube in all 3 dimensions.
+ * Digital black-box theatre. A 30-unit cube in void space.
  *
  * Controls:
  *   Mouse / touch drag  — orbit camera around cube (spherical theta/phi)
+ *                         Release launches with momentum; decays to auto-orbit.
  *   Scroll wheel        — scale the cube (0.3× – 3.0×)
  *   Mic button          — optional audio reactivity for Hydra sketches
+ *                         Auto-skipped if mic was already granted this session.
+ *
+ * Camera states:
+ *   DRAG        — user is actively dragging; theta/phi set directly
+ *   COAST       — user released; thetaVel/phiVel applied + decayed each frame
+ *   AUTO-ORBIT  — velocity dead; theta auto-advances, phi oscillates with sin()
  *
  * Faces:
  *   Exterior (6)  — Hydra sketches 1–6 as CanvasTexture
  *   Interior (6)  — flat black
- *
- * Audio:
- *   window.a shim (24 bins) populated from MicInput each frame.
- *   All Hydra lambdas read it live; setBins() is a no-op to keep 24 bins for
- *   every sketch regardless of individual calls to a.setBins(n).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -28,12 +29,15 @@ import { HydraManager }                      from '../utils/HydraManager.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const CUBE_SIZE  = 30;
-const ORBIT_R    = 55;     // camera distance from origin
-const AUTO_SPEED = 0.18;   // rad/s — auto-orbit when not dragging
-const DRAG_SENS  = 0.005;  // radians per pixel
+const ORBIT_R    = 55;       // camera distance from origin
+const DRAG_SENS  = 0.005;    // radians per pixel dragged
 const SCALE_MIN  = 0.3;
 const SCALE_MAX  = 3.0;
-const SCALE_STEP = 0.08;   // per normalised wheel tick
+const SCALE_STEP = 0.08;
+const PHI_REST   = Math.PI / 3.5;  // home elevation (~51°)
+const AUTO_SPEED = 0.18;            // auto-orbit theta rate rad/s
+const DECAY      = 2.8;             // exponential velocity decay constant (per sec)
+const VEL_DEAD   = 0.00015;         // velocity threshold below which auto-orbit kicks in
 
 // ── Audio shim — installed before any Hydra instance ─────────────────────────
 window.a = {
@@ -51,10 +55,13 @@ const { renderer, scene, camera, clock } = createThreeScene(canvas, {
   fov: 60, far: 500, background: new THREE.Color(0x000000),
 });
 
-// ── Mic (audio reactivity — optional) ────────────────────────────────────────
+// ── Mic — auto-init if previously granted, otherwise gate behind button ───────
 const mic    = new MicInput({ fftSize: 1024, smoothing: 0.8 });
 const micBtn = document.getElementById('mic-btn');
-if (micBtn) {
+
+const _autoMicOk = await mic.autoInit();
+if (_autoMicOk && micBtn) micBtn.style.display = 'none';
+if (micBtn && !_autoMicOk) {
   micBtn.addEventListener('click', async () => {
     const ok = await mic.init();
     if (ok) micBtn.style.display = 'none';
@@ -100,11 +107,10 @@ for (let i = 0; i < 6; i++) {
   );
 }
 
-// ── Cube group (scale is applied here) ───────────────────────────────────────
+// ── Cube group (scale applied here) ───────────────────────────────────────────
 const cubeGroup = new THREE.Group();
 scene.add(cubeGroup);
 
-// Exterior: Hydra CanvasTexture per face
 const extTextures = Array.from({ length: 6 }, (_, i) =>
   new THREE.CanvasTexture(manager.getCanvas(i))
 );
@@ -116,7 +122,6 @@ const exteriorCube = new THREE.Mesh(
 );
 cubeGroup.add(exteriorCube);
 
-// Interior: flat black, BackSide
 const interiorCube = new THREE.Mesh(
   new THREE.BoxGeometry(CUBE_SIZE * 0.995, CUBE_SIZE * 0.995, CUBE_SIZE * 0.995),
   Array.from({ length: 6 }, () =>
@@ -125,26 +130,23 @@ const interiorCube = new THREE.Mesh(
 );
 cubeGroup.add(interiorCube);
 
-// Cyan edge overlay — the relic's skeleton
 const edgeMesh = new THREE.LineSegments(
   new THREE.EdgesGeometry(new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE)),
   new THREE.LineBasicMaterial({ color: 0x00ffe1, transparent: true, opacity: 0.35 })
 );
 cubeGroup.add(edgeMesh);
 
-// ── Spherical orbit state ─────────────────────────────────────────────────────
-//   theta = azimuth (horizontal), phi = elevation (vertical)
-//   Camera position: standard spherical → Cartesian
-//     x = R * sin(phi) * sin(theta)
-//     y = R * cos(phi)
-//     z = R * sin(phi) * cos(theta)
+// ── Orbit state (spherical coordinates) ───────────────────────────────────────
+//   Camera position: x = R*sin(phi)*sin(theta)  y = R*cos(phi)  z = R*sin(phi)*cos(theta)
 let theta      = 0;
-let phi        = Math.PI / 3.5;   // start slightly above equator
+let phi        = PHI_REST;
 let isDragging = false;
-let lastX      = 0;
-let lastY      = 0;
+let lastX      = 0, lastY = 0;
+let lastDragDx = 0, lastDragDy = 0;   // most recent drag delta for launch velocity
+let thetaVel   = 0;                    // angular velocity (rad/frame)
+let phiVel     = 0;
 
-// Cube scale (scroll-driven)
+// Scale
 let cubeScale   = 1.0;
 let targetScale = 1.0;
 
@@ -153,8 +155,9 @@ canvas.style.cursor = 'grab';
 
 canvas.addEventListener('mousedown', e => {
   isDragging = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
+  lastX = e.clientX; lastY = e.clientY;
+  lastDragDx = 0; lastDragDy = 0;
+  thetaVel = 0; phiVel = 0;   // cancel any coast in progress
   canvas.style.cursor = 'grabbing';
 });
 
@@ -162,15 +165,19 @@ window.addEventListener('mousemove', e => {
   if (!isDragging) return;
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
-  lastX = e.clientX;
-  lastY = e.clientY;
+  lastX = e.clientX; lastY = e.clientY;
+  lastDragDx = dx; lastDragDy = dy;
   theta -= dx * DRAG_SENS;
   phi   -= dy * DRAG_SENS;
   phi    = Math.max(0.08, Math.min(Math.PI - 0.08, phi));
 });
 
 window.addEventListener('mouseup', () => {
+  if (!isDragging) return;
   isDragging = false;
+  // Launch with the velocity of the final drag movement
+  thetaVel = -lastDragDx * DRAG_SENS;
+  phiVel   = -lastDragDy * DRAG_SENS;
   canvas.style.cursor = 'grab';
 });
 
@@ -178,8 +185,9 @@ window.addEventListener('mouseup', () => {
 canvas.addEventListener('touchstart', e => {
   const t = e.touches[0];
   isDragging = true;
-  lastX = t.clientX;
-  lastY = t.clientY;
+  lastX = t.clientX; lastY = t.clientY;
+  lastDragDx = 0; lastDragDy = 0;
+  thetaVel = 0; phiVel = 0;
 }, { passive: true });
 
 window.addEventListener('touchmove', e => {
@@ -187,14 +195,19 @@ window.addEventListener('touchmove', e => {
   const t = e.touches[0];
   const dx = t.clientX - lastX;
   const dy = t.clientY - lastY;
-  lastX = t.clientX;
-  lastY = t.clientY;
+  lastX = t.clientX; lastY = t.clientY;
+  lastDragDx = dx; lastDragDy = dy;
   theta -= dx * DRAG_SENS;
   phi   -= dy * DRAG_SENS;
   phi    = Math.max(0.08, Math.min(Math.PI - 0.08, phi));
 }, { passive: true });
 
-window.addEventListener('touchend', () => { isDragging = false; });
+window.addEventListener('touchend', () => {
+  if (!isDragging) return;
+  isDragging = false;
+  thetaVel = -lastDragDx * DRAG_SENS;
+  phiVel   = -lastDragDy * DRAG_SENS;
+});
 
 // ── Scroll → cube scale ───────────────────────────────────────────────────────
 canvas.addEventListener('wheel', e => {
@@ -225,13 +238,33 @@ startRenderLoop(clock, (delta, elapsed) => {
     }
   }
 
-  // Mark all Hydra textures dirty
+  // Mark all Hydra textures dirty each frame
   for (const tex of extTextures) tex.needsUpdate = true;
 
-  // Auto-orbit when not dragging — the holy-relic idle drift
-  if (!isDragging) theta += delta * AUTO_SPEED;
+  // ── Camera: coast → auto-orbit ──────────────────────────────────────────────
+  if (!isDragging) {
+    // Frame-rate-independent exponential velocity decay
+    const decay = Math.exp(-delta * DECAY);
+    thetaVel *= decay;
+    phiVel   *= decay;
 
-  // Spherical → Cartesian camera position; always looks at origin
+    theta += thetaVel;
+    phi   += phiVel;
+
+    // When momentum has died, switch to auto-orbit
+    if (Math.abs(thetaVel) + Math.abs(phiVel) < VEL_DEAD) {
+      thetaVel = 0;
+      phiVel   = 0;
+      // Auto-advance theta + gently restore phi to sinusoidal path
+      theta += delta * AUTO_SPEED;
+      const phiTarget = PHI_REST + Math.sin(elapsed * 0.28) * 0.30;
+      phi += (phiTarget - phi) * 0.015;   // slow lerp — organic, not snappy
+    }
+
+    phi = Math.max(0.08, Math.min(Math.PI - 0.08, phi));
+  }
+
+  // Spherical → Cartesian; camera always looks at origin
   camera.position.set(
     ORBIT_R * Math.sin(phi) * Math.sin(theta),
     ORBIT_R * Math.cos(phi),

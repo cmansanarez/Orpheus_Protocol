@@ -72,7 +72,7 @@ composer.addPass(new RenderPass(scene, camera));
 // Bloom: more aggressive than Awakening. The Fracture should feel electric.
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  2.2,   // strength  — electric
+  1.5,   // strength  — electric
   0.50,  // radius
   0.05   // threshold — very low; nearly everything glows
 );
@@ -183,7 +183,7 @@ function updateGlitch(delta) {
 
   chromaPass.uniforms.offsetX.value = 0.003 + glitchIntensity * 0.018;
   chromaPass.uniforms.offsetY.value = glitchIntensity * 0.005;
-  bloomPass.strength = 2.2 + glitchIntensity * 2.2;
+  bloomPass.strength = 1.5 + glitchIntensity * 1.1;
 }
 
 // ── Depth-color palette ───────────────────────────────────────────────────────

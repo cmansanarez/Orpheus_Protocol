@@ -36,9 +36,11 @@ export class ScrollNarrative {
     this._raf           = null;
     this._lastTouchY    = null;
 
-    this._onWheel = this._onWheel.bind(this);
-    this._onTouch = this._onTouch.bind(this);
-    this._onKey   = this._onKey.bind(this);
+    this._onWheel    = this._onWheel.bind(this);
+    this._onTouch    = this._onTouch.bind(this);
+    this._onKey      = this._onKey.bind(this);
+    this._onKeyUp    = this._onKeyUp.bind(this);
+    this._gateTimers = {};
   }
 
   // ── Public API ────────────────────────────────────────────
@@ -85,6 +87,7 @@ export class ScrollNarrative {
     window.addEventListener('touchstart', this._onTouch, { passive: true });
     window.addEventListener('touchmove',  this._onTouch, { passive: false });
     window.addEventListener('keydown',    this._onKey);
+    window.addEventListener('keyup',      this._onKeyUp);
     this._loop();
     return this;
   }
@@ -95,6 +98,7 @@ export class ScrollNarrative {
     window.removeEventListener('touchstart', this._onTouch);
     window.removeEventListener('touchmove',  this._onTouch);
     window.removeEventListener('keydown',    this._onKey);
+    window.removeEventListener('keyup',      this._onKeyUp);
     cancelAnimationFrame(this._raf);
   }
 
@@ -189,12 +193,29 @@ export class ScrollNarrative {
   }
 
   _onKey(e) {
-    if (e.code === 'ArrowDown' || e.code === 'ArrowRight') {
-      e.preventDefault();
+    const code       = e.code;
+    const isAdvance  = (code === 'ArrowUp'   || code === 'ArrowRight');
+    const isRetreat  = (code === 'ArrowDown' || code === 'ArrowLeft');
+    if (!isAdvance && !isRetreat) return;
+    e.preventDefault();
+
+    if (this._atGate()) {
+      const choices = document.querySelectorAll('.beat--choice .choice-btn');
+      if (choices.length === 2) {
+        // Branch page: up/left → first choice (Fracture), right → second (Resonance)
+        if (code === 'ArrowLeft' || code === 'ArrowUp')  { this._startGateHold(code, choices[0]); return; }
+        if (code === 'ArrowRight')                        { this._startGateHold(code, choices[1]); return; }
+        // ArrowDown at branch: falls through to retreat
+      } else if (choices.length >= 1 && isAdvance) {
+        this._startGateHold(code, choices[0]);
+        return;
+      }
+    }
+
+    if (isAdvance) {
       this._jumpToNextBeat();
       this._flashKey('next');
-    } else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft') {
-      e.preventDefault();
+    } else {
       this._jumpToPrevBeat();
       this._flashKey('prev');
     }
@@ -219,11 +240,40 @@ export class ScrollNarrative {
     const container = document.getElementById('key-hint');
     if (!container) return;
     const keys = container.querySelectorAll('.key');
-    const idx  = (dir === 'next') ? 1 : 0;  // [0]=up  [1]=down
+    const idx  = (dir === 'next') ? 0 : 1;  // [0]=up (advance)  [1]=down (retreat)
     const el   = keys[idx];
     if (!el) return;
     el.classList.add('key--active');
     setTimeout(() => el.classList.remove('key--active'), 180);
+  }
+
+  // Returns true when targetProgress is within 0.06 of the last beat (the gate)
+  _atGate() {
+    const choices = document.querySelectorAll('.beat--choice .choice-btn');
+    if (!choices.length) return false;
+    const lastBeat = Math.max(...this.beats.map(b => b.progress));
+    return this.targetProgress >= lastBeat - 0.06;
+  }
+
+  // Begin the hold-to-navigate countdown for a specific choice button
+  _startGateHold(code, btn) {
+    if (this._gateTimers[code]) return;   // already holding this key
+    btn.classList.add('filling');
+    this._gateTimers[code] = setTimeout(() => {
+      delete this._gateTimers[code];
+      window.location.href = btn.href;
+    }, 1500);
+  }
+
+  // Cancel any in-progress gate hold when key is released
+  _onKeyUp(e) {
+    const code = e.code;
+    if (this._gateTimers[code]) {
+      clearTimeout(this._gateTimers[code]);
+      delete this._gateTimers[code];
+      document.querySelectorAll('.choice-btn.filling')
+        .forEach(el => el.classList.remove('filling'));
+    }
   }
 
 }

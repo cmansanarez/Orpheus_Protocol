@@ -174,7 +174,11 @@ let rippleCooldown = 0;
 // ── Microphone ────────────────────────────────────────────────────────────────
 const mic    = new MicInput({ fftSize: 512, smoothing: 0.82 });
 const micBtn = document.getElementById('mic-btn');
-if (micBtn) {
+
+// Silently restore mic if already granted on a previous scene
+const _autoMicOk = await mic.autoInit();
+if (_autoMicOk && micBtn) micBtn.style.display = 'none';
+if (micBtn && !_autoMicOk) {
   micBtn.addEventListener('click', async () => {
     const ok = await mic.init();
     if (ok) micBtn.style.display = 'none';

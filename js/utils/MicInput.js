@@ -55,6 +55,7 @@ export class MicInput {
       this._timeBuf = new Uint8Array(this._analyser.fftSize);
 
       this.ready = true;
+      localStorage.setItem('orpheus-mic', '1');
       console.log('[MicInput] Ready. Bin count:', this.binCount);
       return true;
     } catch (err) {
@@ -99,6 +100,16 @@ export class MicInput {
   }
 
   get binCount() { return this._analyser?.frequencyBinCount ?? this.fftSize / 2; }
+
+  /**
+   * If microphone permission was granted in a previous scene/page-load,
+   * silently re-init without showing any browser permission dialog.
+   * @returns {Promise<boolean>}
+   */
+  async autoInit() {
+    if (localStorage.getItem('orpheus-mic') !== '1') return false;
+    return this.init();
+  }
 
   dispose() {
     if (!this._ctx) return;
