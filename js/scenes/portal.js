@@ -223,8 +223,20 @@ const scroll = new ScrollNarrative({
   onProgress: (p) => {
     const bar = document.getElementById('progress-bar');
     if (bar) bar.style.width = (p * 100) + '%';
-    // Reveal cube only after scrolling through the full story
-    if (p >= 0.94) canvas.classList.add('cube-visible');
+    // Reveal cube as the last text beat is fading (crossfade overlap).
+    // Flag ensures the 60 s timer fires exactly once.
+    if (p >= 0.90 && !canvas._cubeRevealed) {
+      canvas._cubeRevealed = true;
+      canvas.classList.add('cube-visible');
+      // After 60 s of uninterrupted cube time, the restart drifts in
+      setTimeout(() => {
+        const restart = document.getElementById('archive-restart');
+        if (restart) {
+          restart.classList.add('visible');
+          restart.removeAttribute('aria-hidden');
+        }
+      }, 60000);
+    }
   },
 });
 scroll.loadBeatsFromDOM().start();
