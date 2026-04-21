@@ -34,7 +34,7 @@ const DRAG_SENS  = 0.005;    // radians per pixel dragged
 const SCALE_MIN  = 0.3;
 const SCALE_MAX  = 3.0;
 const SCALE_STEP = 0.08;
-const PHI_REST   = Math.PI / 3.5;  // home elevation (~51°)
+const PHI_REST   = Math.PI * 0.50;  // equatorial start — drift covers top + bottom
 const AUTO_SPEED = 0.18;            // auto-orbit theta rate rad/s
 const DECAY      = 2.8;             // exponential velocity decay constant (per sec)
 const VEL_DEAD   = 0.00015;         // velocity threshold below which auto-orbit kicks in
@@ -257,8 +257,9 @@ startRenderLoop(clock, (delta, elapsed) => {
       phiVel   = 0;
       // Auto-advance theta + gently restore phi to sinusoidal path
       theta += delta * AUTO_SPEED;
-      const phiTarget = PHI_REST + Math.sin(elapsed * 0.28) * 0.30;
-      phi += (phiTarget - phi) * 0.015;   // slow lerp — organic, not snappy
+      // Velocity-based sine drift — no restoring force, no lock point.
+      // Integrates to ±0.71 rad oscillation (~41°) over ~45 s period.
+      phi += Math.sin(elapsed * 0.14) * delta * 0.10;
     }
 
     phi = Math.max(0.08, Math.min(Math.PI - 0.08, phi));
