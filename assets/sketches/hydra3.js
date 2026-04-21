@@ -6,7 +6,7 @@ a.setBins(24)
 a.setScale(2)
 a.setCutoff(0.5)
 a.setSmooth(0.8)
-a.show()
+//a.show()
 
 let makeLayer = (bin) => 
   osc(3,0,()=>a.fft[bin]*5)

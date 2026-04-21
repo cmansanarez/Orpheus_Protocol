@@ -5,7 +5,7 @@
 //AUDIO SETTINGS
 a.setSmooth(.9)
 a.setCutoff(-1)
-a.setScale(10)
+a.setScale(5)
 a.setBins(6) 
 
 //Constants

@@ -3,9 +3,9 @@
 //https://hydra.ojack.xyz/?sketch_id=xXSlCrbliLgiMsyZ 
 
 a.setSmooth(0.9)
-a.setScale(4)
+a.setScale(10)
 a.setBins(5)
-a.setCutoff(2)
+a.setCutoff(-2)
 
 
 osc(5, 5, 0).luma(1).kaleid([0, 1])

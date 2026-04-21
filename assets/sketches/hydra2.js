@@ -3,10 +3,10 @@
 //https://hydra.ojack.xyz/?sketch_id=YOIMAgCpn1jwHvOC
 
 a.setBins(24)
-a.setScale(3.3)
-a.setCutoff(0.3)
+a.setScale(5)
+a.setCutoff(1)
 a.setSmooth(0.8)
-a.show()
+//a.show()
 
 let makeLayer = (bin) => 
  osc(()=>a.fft[bin]+1*5,0.1,()=>a.fft[bin]*0.4)
