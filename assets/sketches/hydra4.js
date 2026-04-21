@@ -2,7 +2,37 @@
 // Cam Mansanarez | @noir_mak
 //https://hydra.ojack.xyz/?sketch_id=8b3hGvd9oRxNWe5k
 
-await loadScript("https://metagrowing.org/extra-shaders-for-hydra/lib-cond.js")
+// ── Conditional transforms (lib-cond.js — vendored inline) ─────────────────
+// Defined here so they register before ifeven() is called in this sketch.
+setFunction({
+  name: 'ifpos', type: 'combine',
+  inputs: [{ name: 'value', type: 'float', default: 1.0 }],
+  glsl: `return value < 0.0 ? _c0 : _c1;`
+})
+setFunction({
+  name: 'ifeven', type: 'combine',
+  inputs: [{ name: 'value', type: 'float', default: 0.0 },
+           { name: 'eps',   type: 'float', default: 0.01 }],
+  glsl: `return abs(mod(floor(value), 2.0)) < eps ? _c0 : _c1;`
+})
+setFunction({
+  name: 'ifzero', type: 'combine',
+  inputs: [{ name: 'value', type: 'float', default: 0.0 },
+           { name: 'eps',   type: 'float', default: 0.1 }],
+  glsl: `return abs(value) < eps ? _c0 : _c1;`
+})
+setFunction({
+  name: 'splitview', type: 'combine',
+  inputs: [{ name: 'where', type: 'float', default: 0.5 }],
+  glsl: `return gl_FragCoord.x / resolution.x > where ? _c0 : _c1;`
+})
+setFunction({
+  name: 'splitviewh', type: 'combine',
+  inputs: [{ name: 'where', type: 'float', default: 0.5 }],
+  glsl: `return gl_FragCoord.y / resolution.y > where ? _c0 : _c1;`
+})
+// ─────────────────────────────────────────────────────────────────────────────
+
 speed = 1
 swap = () => (Math.floor(time / 2) % 2 === 0 ? 1 : 0)
 
