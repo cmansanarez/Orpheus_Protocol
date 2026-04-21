@@ -23,6 +23,7 @@ import { ImprovedNoise }   from 'three/addons/math/ImprovedNoise.js';
 
 import { createThreeScene, startRenderLoop } from '../utils/SceneSetup.js';
 import { ScrollNarrative }                   from '../utils/ScrollNarrative.js';
+import { MicInput }                          from '../utils/MicInput.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────────────────────
 const CAM_Z_START = 0;
@@ -74,6 +75,11 @@ scene.add(sigA);
 const sigB = new THREE.PointLight(0x00ffe1, 0.6, 80);
 sigB.position.set( 18, 6, -25);
 scene.add(sigB);
+
+// Apex reactive light — hidden inside icosahedron, fires on loud mic input
+const apexLight = new THREE.PointLight(0x00ffe1, 0, 70);
+apexLight.position.set(0, 7.0, -30);
+scene.add(apexLight);
 
 // ── Noise Grid ─────────────────────────────────────────────────────────────────────────────────────
 // PlaneGeometry is created in XY space, then rotated flat.
@@ -167,6 +173,18 @@ const prims = [
 // Tilt torus slightly so it reads as a ring and not a flat disc
 prims[7].rotation.x = Math.PI * 0.12;
 
+// ── Audio-reactive material references ───────────────────────────────────────
+// Apex icosahedron (prims[4]) — MeshStandardMaterial supports emissive
+const apexMesh = prims[4].children[0];
+apexMesh.material.emissive.set(0x00ffe1);
+apexMesh.material.emissiveIntensity = 0;
+
+// Signal octahedra (prims[5], prims[6]) — MeshBasicMaterial color lerp
+const octMatA  = prims[5].children[0].material;
+const octMatB  = prims[6].children[0].material;
+const SIG_REST = new THREE.Color(0x00ffe1);
+const SIG_HOT  = new THREE.Color(0xffffff);
+
 // ── Scroll Narrative ────────────────────────────────────────────────────────────────────────────────────
 const scroll = new ScrollNarrative({
   sensitivity: 0.00028,
@@ -180,7 +198,12 @@ const scroll = new ScrollNarrative({
 });
 scroll.loadBeatsFromDOM().start();
 
+// ── Microphone — silent auto-restore (permission granted on echo_basin) ──────
+const mic = new MicInput({ fftSize: 512, smoothing: 0.82 });
+await mic.autoInit();
+
 // ── Render Loop ──────────────────────────────────────────────────────────────────────────────────────
+let glowPulse = 0;
 startRenderLoop(clock, (delta, elapsed) => {
 
   // ── Noise grid — displace Z (becomes world Y after rotation) ────────────────
@@ -204,6 +227,31 @@ startRenderLoop(clock, (delta, elapsed) => {
     prim.rotation.x += delta * rotX;
     prim.rotation.y += delta * rotY;
   }
+
+  // ── Audio reactivity — three-tier response ────────────────────────────────
+  const micLevel = mic.getLevel();
+  // Snaps up instantly with mic, decays at ~88 % per frame (~0.12 s half-life)
+  glowPulse = Math.max(glowPulse * 0.88, micLevel);
+
+  // Tier 1 — flanking signal lights pulse from any mic input
+  sigA.intensity = 0.6 + glowPulse * 3.0;
+  sigB.intensity = 0.6 + glowPulse * 3.0;
+
+  // Tier 2 — signal octahedra: scale up + colour drifts toward white
+  const octPulse = Math.max(0, glowPulse - 0.05) * 1.4;
+  const octScale = 1.0 + octPulse * 0.25;
+  prims[5].scale.setScalar(octScale);
+  prims[6].scale.setScalar(octScale);
+  octMatA.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 1.8));
+  octMatB.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 1.8));
+
+  // Tier 3 — apex heartbeat: emissive glow + hidden point light fires at peaks
+  const apexPulse = Math.max(0, glowPulse - 0.20) * 2.5;
+  apexMesh.material.emissiveIntensity = Math.min(0.9, apexPulse * 0.9);
+  apexLight.intensity                 = apexPulse * 4.5;
+
+  // Bloom rises across all tiers
+  bloom.strength = 0.90 + glowPulse * 1.5;
 
   // ── Camera — gentle drift, always faces forward down Z ──────────────────────
   // Z is controlled by ScrollNarrative
