@@ -117,17 +117,18 @@ html, body {
 
 /* System / log messages */
 .beat--system {
-  font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+  font-size: clamp(1.4rem, 2.6vw, 1.8rem);
   color: var(--signal);
   text-shadow:
-    0 0  2px rgba(0, 2, 12, 0.90),
-    0 0  8px var(--signal);
+    0 0 10px var(--signal),
+    0 0 28px rgba(0, 255, 225, 0.45);
   letter-spacing: 0.08em;
-  border: 1px solid rgba(0, 255, 225, 0.25);
-  padding: 1.2rem 2rem;
-  background: rgba(0, 255, 225, 0.03);
+  border: 1px solid rgba(0, 255, 225, 0.5);
+  padding: 2rem 3.2rem;
+  background: rgba(0, 255, 225, 0.04);
   line-height: 2;
   text-align: left;
+  box-shadow: 0 0 20px rgba(0, 255, 225, 0.2), inset 0 0 16px rgba(0, 255, 225, 0.05);
 }
 
 /* Directives / warnings (Condition page) */
@@ -166,7 +167,7 @@ html, body {
 /* ── Branch Choice Buttons ──────────────────────────────────── */
 .beat--choice {
   display: flex;
-  gap: clamp(1rem, 3vw, 2rem);
+  gap: clamp(1.5rem, 4vw, 3rem);
   justify-content: center;
   flex-wrap: wrap;
   pointer-events: all;   /* choices are interactive */
@@ -176,12 +177,12 @@ html, body {
   display: inline-block;
   position: relative;
   overflow: hidden;
-  padding: 0.7rem 1.6rem;
-  border: 1px solid currentColor;
+  padding: 1.4rem 3.2rem;
+  border: 2px solid currentColor;
   background: transparent;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 1.6rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
