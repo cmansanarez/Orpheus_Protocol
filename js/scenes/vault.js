@@ -174,6 +174,12 @@ const prims = [
 prims[7].rotation.x = Math.PI * 0.12;
 
 // ── Audio-reactive material references ───────────────────────────────────────
+// Magenta entry spheres (prims[0], prims[1]) — flash with mic input
+const sphereMatA = prims[0].children[0].material;
+const sphereMatB = prims[1].children[0].material;
+sphereMatA.color.set(0xff00c8);  sphereMatA.emissive.set(0xff00c8);  sphereMatA.emissiveIntensity = 0;
+sphereMatB.color.set(0xff00c8);  sphereMatB.emissive.set(0xff00c8);  sphereMatB.emissiveIntensity = 0;
+
 // Apex icosahedron (prims[4]) — MeshStandardMaterial supports emissive
 const apexMesh = prims[4].children[0];
 apexMesh.material.emissive.set(0x00ffe1);
@@ -233,25 +239,28 @@ startRenderLoop(clock, (delta, elapsed) => {
   // Snaps up instantly with mic, decays at ~88 % per frame (~0.12 s half-life)
   glowPulse = Math.max(glowPulse * 0.88, micLevel);
 
-  // Tier 1 — flanking signal lights pulse from any mic input
-  sigA.intensity = 0.6 + glowPulse * 3.0;
-  sigB.intensity = 0.6 + glowPulse * 3.0;
+  // Tier 1 — flanking signal lights + magenta sphere flash
+  sigA.intensity = 0.6 + glowPulse * 6.0;
+  sigB.intensity = 0.6 + glowPulse * 6.0;
+  const spherePulse = glowPulse * 2.4;
+  sphereMatA.emissiveIntensity = Math.min(1.4, spherePulse);
+  sphereMatB.emissiveIntensity = Math.min(1.4, spherePulse);
 
   // Tier 2 — signal octahedra: scale up + colour drifts toward white
-  const octPulse = Math.max(0, glowPulse - 0.05) * 1.4;
-  const octScale = 1.0 + octPulse * 0.25;
+  const octPulse = Math.max(0, glowPulse - 0.05) * 2.8;
+  const octScale = 1.0 + octPulse * 0.50;
   prims[5].scale.setScalar(octScale);
   prims[6].scale.setScalar(octScale);
-  octMatA.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 1.8));
-  octMatB.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 1.8));
+  octMatA.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 3.6));
+  octMatB.color.lerpColors(SIG_REST, SIG_HOT, Math.min(1, octPulse * 3.6));
 
   // Tier 3 — apex heartbeat: emissive glow + hidden point light fires at peaks
-  const apexPulse = Math.max(0, glowPulse - 0.20) * 2.5;
-  apexMesh.material.emissiveIntensity = Math.min(0.9, apexPulse * 0.9);
-  apexLight.intensity                 = apexPulse * 4.5;
+  const apexPulse = Math.max(0, glowPulse - 0.20) * 5.0;
+  apexMesh.material.emissiveIntensity = Math.min(1.5, apexPulse * 1.8);
+  apexLight.intensity                 = apexPulse * 9.0;
 
   // Bloom rises across all tiers
-  bloom.strength = 0.90 + glowPulse * 1.5;
+  bloom.strength = 0.90 + glowPulse * 3.0;
 
   // ── Camera — gentle drift, always faces forward down Z ──────────────────────
   // Z is controlled by ScrollNarrative
