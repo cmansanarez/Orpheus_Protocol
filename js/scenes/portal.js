@@ -223,6 +223,8 @@ const scroll = new ScrollNarrative({
   onProgress: (p) => {
     const bar = document.getElementById('progress-bar');
     if (bar) bar.style.width = (p * 100) + '%';
+    // Reveal cube only after scrolling through the full story
+    if (p >= 0.94) canvas.classList.add('cube-visible');
   },
 });
 scroll.loadBeatsFromDOM().start();
