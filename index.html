@@ -15,8 +15,99 @@
     }
   }
   </script>
+  <style>
+    /* ── Splash overlay ───────────────────────────────────────────────────── */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.4rem;
+      text-align: center;
+      padding: 2rem;
+      font-family: var(--font-mono);
+      transition: opacity 1.4s ease;
+    }
+    #splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #splash .splash-label {
+      color: var(--signal);
+      font-size: 0.75rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin: 0;
+    }
+    #splash .splash-body {
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      line-height: 1.9;
+      max-width: 34ch;
+      opacity: 0.82;
+      margin: 0;
+    }
+    #splash .splash-sub {
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+      letter-spacing: 0.10em;
+      opacity: 0.42;
+      max-width: 40ch;
+      line-height: 1.7;
+      margin: 0;
+    }
+    #splash-enter {
+      color: var(--signal);
+      font-family: var(--font-mono);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(0, 255, 225, 0.5);
+      padding: 1.2rem 3rem;
+      background: transparent;
+      cursor: pointer;
+      margin-top: 0.8rem;
+      text-shadow:
+        0 0 10px var(--signal),
+        0 0 28px rgba(0, 255, 225, 0.4);
+      box-shadow:
+        0 0 16px rgba(0, 255, 225, 0.15),
+        inset 0 0 12px rgba(0, 255, 225, 0.04);
+      transition: text-shadow 0.3s, box-shadow 0.3s, letter-spacing 0.3s;
+    }
+    #splash-enter:hover {
+      text-shadow:
+        0 0 20px var(--signal),
+        0 0 52px rgba(0, 255, 225, 0.6);
+      box-shadow:
+        0 0 36px rgba(0, 255, 225, 0.35),
+        inset 0 0 18px rgba(0, 255, 225, 0.07);
+      letter-spacing: 0.22em;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Splash overlay — shown before experience begins -->
+  <div id="splash" role="dialog" aria-modal="true" aria-label="Pre-entry notice">
+    <p class="splash-label">SYSTEM NOTICE</p>
+    <p class="splash-body">
+      This archive is audio-reactive.<br>
+      The visuals respond to the music you bring.
+    </p>
+    <p class="splash-sub">
+      Put on music or headphones before you enter<br>
+      for the full experience.
+    </p>
+    <button id="splash-enter" autofocus>ENTER THE ARCHIVE</button>
+  </div>
 
   <!-- Layer 0: WebGL scene -->
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
@@ -135,5 +226,24 @@
   </div>
 
   <script type="module" src="js/scenes/awakening.js"></script>
+
+  <script>
+    /* Block scroll / key navigation until the splash is dismissed */
+    (function () {
+      function block(e) { e.preventDefault(); e.stopImmediatePropagation(); }
+      window.addEventListener('wheel',     block, { passive: false, capture: true });
+      window.addEventListener('touchmove', block, { passive: false, capture: true });
+      window.addEventListener('keydown',   block, { capture: true });
+
+      document.getElementById('splash-enter').addEventListener('click', function () {
+        window.removeEventListener('wheel',     block, { capture: true });
+        window.removeEventListener('touchmove', block, { capture: true });
+        window.removeEventListener('keydown',   block, { capture: true });
+        var s = document.getElementById('splash');
+        s.classList.add('fade-out');
+        s.addEventListener('transitionend', function () { s.remove(); }, { once: true });
+      });
+    })();
+  </script>
 </body>
 </html>
